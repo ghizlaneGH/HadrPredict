@@ -20,5 +20,6 @@ public interface EcoleRepository extends JpaRepository<Ecole, Long> {
 
     // recuperer les etablissements par commune
     List<Ecole> findEcolesByCommune(String commune);
+    List<Ecole> findByLatitudeIsNotNullAndLongitudeIsNotNull();
 
 }

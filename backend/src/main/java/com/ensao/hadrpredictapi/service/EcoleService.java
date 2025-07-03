@@ -37,6 +37,9 @@ public class EcoleService {
             return schoolRepository.save(ecole);
         }
     }
+    public List<Ecole> getSchoolsWithCoordinates() {
+        return schoolRepository.findByLatitudeIsNotNullAndLongitudeIsNotNull();
+    }
 
     public List<Ecole> getAllSchools() {
         return schoolRepository.findAll();
@@ -53,4 +56,6 @@ public class EcoleService {
             }
         }
     }
+
+
 }

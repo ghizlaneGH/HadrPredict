@@ -118,6 +118,11 @@ public class SchoolController {
     public Long getCount(){
         return ecoleRepository.count();
     }
+    @GetMapping("/map")
+    public ResponseEntity<List<Ecole>> getAllWithCoordinates() {
+        List<Ecole> dtos = schoolService.getSchoolsWithCoordinates();
+        return ResponseEntity.ok(dtos);
+    }
 
 }
 
