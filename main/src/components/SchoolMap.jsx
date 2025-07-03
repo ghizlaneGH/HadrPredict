@@ -1,91 +1,102 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import schoolIconUrl from "../components/Assets/school.png";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Layout/Sidebar/Sidebar";
 
-const schoolIcon = new L.Icon({
-  iconUrl: schoolIconUrl,
-  iconSize: [35, 35],
-  iconAnchor: [17, 35],
-  popupAnchor: [0, -30],
+const schoolIcon = L.icon({
+  iconUrl: "/public/icon.jpeg",
+  iconSize: [14, 8],
+  iconAnchor: [7, 8],
+  popupAnchor: [0, -8],
 });
 
-const schools = [
-  {
-    id: 1,
-    name: "Lycée Al Irfane",
-    lat: 34.6833,
-    lng: -1.9094,
-    abandonRate: 18,
-  },
-  {
-    id: 2,
-    name: "Collège Al Qods",
-    lat: 34.6865,
-    lng: -1.8994,
-    abandonRate: 12,
-  },
-];
-
 const SchoolMap = () => {
+  const [schools, setSchools] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
+  useEffect(() => {
+    fetch("http://localhost:8081/api/schools/map")
+      .then((res) => res.json())
+      .then((data) => setSchools(data))
+      .catch((err) => console.error("Erreur chargement écoles:", err));
+  }, []);
+
+  const filteredSchools = schools.filter((school) =>
+    school.nom.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="page-layout">
-
+    <div className="page-layout" style={{ display: "flex", height: "100vh" }}>
       <Sidebar />
-
-    <div
-    style={{
-      height: "100vh",
-      width: "100vw",
-      overflow: "hidden",
-      padding: "16px",
-      boxSizing: "border-box",
-      backgroundColor: "#f0f0f0",
-    }}
-    >
       <div
         style={{
-          height: "100%",
+          flex: 1,
+          padding: "16px",
+          boxSizing: "border-box",
+          backgroundColor: "#f0f0f0",
           borderRadius: "8px",
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+          boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+          position: "relative",
           overflow: "hidden",
         }}
       >
+        <input
+          type="text"
+          placeholder="Rechercher une école..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            position: "absolute",
+            top: "24px",
+            left: "70px",
+            width: "350px",
+            height: "40px",
+            padding: "10px 14px",
+            fontSize: "16px",
+            border: "1px solid #ccc",
+            borderRadius: "6px",
+            backgroundColor: "white",
+            boxShadow: "0 3px 8px rgba(0,0,0,0.2)",
+            zIndex: 1000,
+          }}
+        />
+
         <MapContainer
           center={[34.6833, -1.9094]}
-          zoom={13}
+          zoom={8}
           style={{ height: "100%", width: "100%" }}
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="© OpenStreetMap contributors"
           />
-          {schools.map((school) => (
+          {filteredSchools.map((school) => (
             <Marker
               key={school.id}
-              position={[school.lat, school.lng]}
+              position={[school.latitude, school.longitude]}
               icon={schoolIcon}
               eventHandlers={{
                 click: () => {
-                  navigate(`/Dashboard/${school.id}`); 
+                  navigate(`/Dashboard/${encodeURIComponent(school.id)}`);
                 },
               }}
             >
               <Popup>
-                <strong>{school.name}</strong>
-                <br />
-                Taux d'abandon : {school.abandonRate}%
+                <div style={{ fontSize: "14px" }}>
+                  <strong>{school.nom}</strong>
+                  <br />
+                  📍 {school.commune}, {school.province}
+                  <br />
+                  🏫 {school.typeSchool}
+                </div>
               </Popup>
             </Marker>
           ))}
         </MapContainer>
       </div>
-    </div>
     </div>
   );
 };
