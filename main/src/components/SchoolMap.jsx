@@ -7,7 +7,7 @@ import Sidebar from "../components/Layout/Sidebar/Sidebar";
 
 const schoolIcon = L.icon({
   iconUrl: "/public/icon.jpeg",
-  iconSize: [14, 8],
+  iconSize: [21, 12],
   iconAnchor: [7, 8],
   popupAnchor: [0, -8],
 });

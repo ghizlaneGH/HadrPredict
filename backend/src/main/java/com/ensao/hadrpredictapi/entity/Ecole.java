@@ -1,5 +1,6 @@
 package com.ensao.hadrpredictapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,7 +42,10 @@ public class Ecole {
     @Column(name = "longitude")
     private Double longitude;
 
+
     @OneToMany(mappedBy = "ecole", cascade = CascadeType.ALL)
+    @JsonIgnore
+
     private List<Eleve> eleves;
 
     public Ecole(String nom) {

@@ -1,4 +1,4 @@
-package com.ensao.hadrpredictapi.service;
+/*package com.ensao.hadrpredictapi.service;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -48,4 +48,4 @@ public class GeocodingService {
         }
         return new double[]{0.0, 0.0}; // default if not found
     }
-}
+}*/

@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -28,18 +27,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        // Liste des chemins publics à ignorer par le filtre JWT
-        List<String> publicPaths = List.of("/api/schools");
-
-        String path = request.getRequestURI();
-
-        // Si la requête concerne un chemin public, on saute le traitement JWT
-        if (publicPaths.stream().anyMatch(path::startsWith)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        // Sinon, continuer avec la vérification du token JWT
         String token = getToken(request);
         if (token != null && jwtService.extractEmail(token) != null) {
             String username = jwtService.extractEmail(token);
@@ -48,7 +35,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
-
         filterChain.doFilter(request, response);
     }
 

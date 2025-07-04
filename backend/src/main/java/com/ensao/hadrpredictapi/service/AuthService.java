@@ -6,6 +6,7 @@ import com.ensao.hadrpredictapi.dto.RegisterDto;
 import com.ensao.hadrpredictapi.entity.User;
 import com.ensao.hadrpredictapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,10 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     private final JwtService jwtService;
 
     public String register(RegisterDto dto) {
@@ -36,7 +40,7 @@ public class AuthService {
         }
 
         String token = jwtService.generateToken(user.getEmail());
-
+        System.out.println("Tentative de login: " + dto.getEmail());
         return new AuthResponse(token);
     }
 }

@@ -14,7 +14,7 @@ public class EcoleService {
     @Autowired
     private EcoleRepository schoolRepository;
 
-    private GeocodingService geocodingService;
+    //private GeocodingService geocodingService;
 
     public Ecole saveSchool(Ecole ecole) {
         Optional<Ecole> existing = schoolRepository.findByNomAndCommune(ecole.getNom(), ecole.getCommune());
@@ -22,35 +22,40 @@ public class EcoleService {
         if (existing.isPresent()) {
             Ecole existingEcole = existing.get();
             if (existingEcole.getLatitude() == null || existingEcole.getLongitude() == null) {
-                double[] coords = geocodingService.getCoordinates(existingEcole.getNom());
-                existingEcole.setLatitude(coords[0]);
-                existingEcole.setLongitude(coords[1]);
+                //double[] coords = geocodingService.getCoordinates(existingEcole.getNom());
+                //existingEcole.setLatitude(coords[0]);
+                //existingEcole.setLongitude(coords[1]);
                 return schoolRepository.save(existingEcole);
             }
             return existingEcole;
         } else {
             if (ecole.getLatitude() == null || ecole.getLongitude() == null) {
-                double[] coords = geocodingService.getCoordinates(ecole.getNom());
-                ecole.setLatitude(coords[0]);
-                ecole.setLongitude(coords[1]);
+                //double[] coords = geocodingService.getCoordinates(ecole.getNom());
+                //ecole.setLatitude(coords[0]);
+                //ecole.setLongitude(coords[1]);
             }
             return schoolRepository.save(ecole);
         }
+    }
+    public List<Ecole> getSchoolsWithCoordinates() {
+        return schoolRepository.findByLatitudeIsNotNullAndLongitudeIsNotNull();
     }
 
     public List<Ecole> getAllSchools() {
         return schoolRepository.findAll();
     }
 
-    public void updateAllSchoolsWithMissingCoordinates() {
+    /*public void updateAllSchoolsWithMissingCoordinates() {
         List<Ecole> schools = schoolRepository.findAll();
         for (Ecole ecole : schools) {
             if (ecole.getLatitude() == null || ecole.getLongitude() == null) {
-                double[] coords = geocodingService.getCoordinates(ecole.getNom());
-                ecole.setLatitude(coords[0]);
-                ecole.setLongitude(coords[1]);
+                //double[] coords = geocodingService.getCoordinates(ecole.getNom());
+                //ecole.setLatitude(coords[0]);
+                //ecole.setLongitude(coords[1]);
                 schoolRepository.save(ecole);
             }
         }
-    }
+    }*/
+
+
 }

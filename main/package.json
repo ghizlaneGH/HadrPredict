@@ -11,7 +11,7 @@
     "@mui/material": "^7.1.0",
     "@mui/x-charts": "^8.5.3",
     "@nivo/pie": "^0.98.0",
-    "@tailwindcss/vite": "^4.1.7",
+    "@tailwindcss/vite": "^4.1.11",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
@@ -60,7 +60,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.15.3",
-    "@vitejs/plugin-react": "^4.4.1",
+    "@vitejs/plugin-react": "^4.6.0",
     "gh-pages": "^6.3.0",
     "install": "^0.13.0",
     "typescript": "^5.8.3",

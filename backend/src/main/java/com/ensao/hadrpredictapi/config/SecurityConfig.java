@@ -4,7 +4,6 @@ import com.ensao.hadrpredictapi.service.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -27,27 +26,19 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-         http
+        return http
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/public/**").permitAll()
+                /*.authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/api/schools/**").permitAll()
-                        .requestMatchers("/api/dashboard/**").permitAll()
-                        .requestMatchers("/api/eleve/pred-par-genre").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/eleve/upload").permitAll()
-                        .requestMatchers("/v3/api-docs/**").permitAll()
-                        .requestMatchers("/swagger-ui/**").permitAll()
-                        .requestMatchers("/swagger-resources/**").permitAll()
                         .requestMatchers("/api/predict/**").permitAll()
-                        .requestMatchers("/api/eleve/**").permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/api/eleve/**").permitAll() // Autoriser upload
                         .anyRequest().authenticated()
-                )
-                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-                return http.build();
+                )*/
+                .build();
     }
 
 

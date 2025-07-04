@@ -27,7 +27,10 @@ const Login = () => {
     try {
       const response = await axios.post("http://localhost:8081/auth/login", {
         email: form.email,
-        password: form.password,
+        password: form.password},{
+        headers: {
+          "Content-Type": "application/json",
+        }
       });
 
       alert("Connexion réussie !");
@@ -80,7 +83,6 @@ const Login = () => {
           </label>
           <Link to="/forgot-password">Mot de passe oublié ?</Link>
         </div>
-        <button type="submit">Login</button>
         <button type="submit">Login</button>
       </form>
 

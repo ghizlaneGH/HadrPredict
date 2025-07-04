@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,9 +117,10 @@ public class SchoolController {
     public Long getCount(){
         return ecoleRepository.count();
     }
+    @GetMapping("/map")
+    public ResponseEntity<List<Ecole>> getAllWithCoordinates() {
+        List<Ecole> dtos = schoolService.getSchoolsWithCoordinates();
+        return ResponseEntity.ok(dtos);
+    }
 
 }
-
-
-
-
