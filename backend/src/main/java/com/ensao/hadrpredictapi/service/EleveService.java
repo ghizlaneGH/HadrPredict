@@ -74,21 +74,28 @@ public class EleveService {
     }
 
     //Statistiques par prediction
-    public Map<String,Double> getPredictionStats(){
-        Object[] pred=eleveRepository.countByPrediction().get(0);
+    public Map<String, Double> getPredictionStats() {
+        List<Object[]> resultList = eleveRepository.countByPrediction();
 
-        double nbrAbandons=((Number)pred[0]).doubleValue();
-        double nbrContinue=((Number)pred[1]).doubleValue();
-        double total=nbrAbandons+nbrContinue;
+        if (resultList.isEmpty()) {
+            return Map.of("Abandons", 0.0, "Exerce ces etudes", 0.0);
+        }
 
-        //
-        Function<Double,Double> round2Digits = d->Math.round(d*100.0)/100.0;
+        Object[] pred = resultList.get(0);
 
-        Map<String,Double> map=new HashMap<>();
-        map.put("Abandons",total==0 ? 0.0 : round2Digits.apply((nbrAbandons / total) *100));
-        map.put("Exerce ces etudes",total==0 ? 0.0 : round2Digits.apply((nbrContinue / total) *100));
+        double nbrAbandons = pred[0] != null ? ((Number) pred[0]).doubleValue() : 0.0;
+        double nbrContinue = pred[1] != null ? ((Number) pred[1]).doubleValue() : 0.0;
+        double total = pred[2] != null ? ((Number) pred[2]).doubleValue() : nbrAbandons + nbrContinue;
+
+        Function<Double, Double> round2Digits = d -> Math.round(d * 100.0) / 100.0;
+
+        Map<String, Double> map = new HashMap<>();
+        map.put("Abandons", total == 0 ? 0.0 : round2Digits.apply((nbrAbandons / total) * 100));
+        map.put("Exerce ces etudes", total == 0 ? 0.0 : round2Digits.apply((nbrContinue / total) * 100));
 
         return map;
     }
+
+
 
 }

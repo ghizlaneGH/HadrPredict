@@ -1,121 +1,160 @@
 .signup-container {
-    width: 500px;
-    margin: 40px auto;
-    background-color: #f5f5f5;
-    border-radius: 16px;
-    padding: 2rem;
+    max-width: 480px;
+    margin: 80px auto;
+    background-color: #ffffff;
+    border-radius: 20px;
+    padding: 2.5rem;
     font-family: "Segoe UI", Arial, sans-serif;
-    border: 1px solid rgba(0, 0, 0, 0.26);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.signup-header {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  }
+  
+  .signup-header {
     display: flex;
-    margin-bottom: 2rem;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-.inputs {
+    margin-bottom: 2rem;
+  }
+  
+  .signup-header img {
+    width: 120px;
+    height: auto;
+  }
+  
+  .inputs {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.input {
+    margin-bottom: 2rem;
+  }
+  
+  .input {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+  }
+  
+  .input label {
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: #333;
+  }
+  
+  .input input {
+    padding: 0.85rem 0.5rem;
     width: 100%;
-}
-
-.input input {
-    padding: 1rem;
-    height: 40px;
-    padding: 0.8rem 1rem;
-    width: 100%;
-    border: 1px solid #b7b7b7;
-    border-radius: 50px;
+    height: 45px;
+    border: 1px solid #c0c0c0;
+    border-radius: 40px;
+    font-size: 0.95rem;
     transition: border-color 0.3s;
-    box-sizing: border-box;
-}
-
-.input input:focus {
+  }
+  
+  .input input:focus {
     outline: none;
     border-color: #2b7b8c;
-    box-shadow: 0 0 0 2px rgba(43, 123, 140, 0.2);
-}
-
-.form-options {
+    box-shadow: 0 0 0 2px rgba(43, 123, 140, 0.1);
+  }
+  
+  .form-options {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.button {
-    height: 45px;
+    font-size: 0.9rem;
+  }
+  
+  .remember-me {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+  }
+  
+  .remember-me input {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 1px solid #b7b7b7;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    position: relative;
+  }
+  
+  .remember-me input:checked {
+    background-color: #2b7b8c;
+    border-color: #2b7b8c;
+  }
+  
+  .remember-me input:checked::after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  
+  .form-options a {
+    color: #2b7b8c;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+  
+  .form-options a:hover {
+    text-decoration: underline;
+  }
+  
+  .SingupSubmit {
     width: 100%;
     background-color: #2b7b8c;
     color: white;
-    padding: 0.8rem;
+    padding: 0.9rem;
     border: none;
-    border-radius: 50px;
+    border-radius: 40px;
     font-size: 1rem;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s ease;
-    display: block;
-    margin: 0 auto;
+    transition: background-color 0.3s, transform 0.2s;
     text-align: center;
-}
-
-.button:hover {
+  }
+  
+  .signup-button:hover {
     background-color: #1e5f6b;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.login-redirect {
-    margin-top: 1.5rem;
+  }
+  
+  .register-redirect {
+    margin-top: 1rem;
     text-align: center;
-    color: #666;
-}
-
-.login-redirect a {
+    font-size: 0.9rem;
+    color: #555;
+  }
+  
+  .register-redirect a {
     color: #2b7b8c;
-    text-decoration: none;
     font-weight: 500;
-}
-
-.login-redirect a:hover {
+    text-decoration: none;
+  }
+  
+  
+  .register-redirect a:hover {
     text-decoration: underline;
-}
-
-@media (max-width: 600px) {
+  }
+  
+  /* Responsive */
+  @media screen and (max-width: 540px) {
     .signup-container {
-        margin: 20px auto;
-        padding: 1.5rem;
+      margin: 40px 20px;
+      padding: 2rem;
     }
-    
-    .form-options {
-        flex-direction: column;
-        align-items: flex-start;
+  
+    .input input {
+      width: 100%;
     }
-    
-    .form-options > * {
-        margin: 0;
-    }
-}
-
-@media (max-width: 400px) {
-    .signup-container {
-        width: 95%;
-        padding: 1rem;
-    }
-}
+  }
+  

@@ -17,8 +17,9 @@ public interface EleveRepository extends JpaRepository<Eleve, Long> {
 
     //recuperer les eleves avec prediction
     @Query(value = "SELECT " +
-            "AVG(CASE WHEN genre = 'Fille' AND prediction = 1 THEN 100.0 ELSE 0 END) AS pctF, " +
-            "AVG(CASE WHEN genre = 'Garçon' AND prediction = 1 THEN 100.0 ELSE 0 END) AS pctM " +
+            "SUM(CASE WHEN prediction = 1 THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN prediction = 0 THEN 1 ELSE 0 END), " +
+            "COUNT(*) " +
             "FROM eleve", nativeQuery = true)
     List<Object[]> countByPrediction();
 

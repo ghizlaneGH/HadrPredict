@@ -31,7 +31,6 @@ function DashGcomponent() {
   });
 
   const [count, setCount] = useState(0);
-  // État pour afficher/masquer la liste des établissements
   const [showEtablissements, setShowEtablissements] = useState(false);
 
   useEffect(() => {
@@ -43,6 +42,7 @@ function DashGcomponent() {
 
     return () => clearTimeout(timer);
   }, []);
+
   useEffect(() => {
     const fetchCount = async () => {
       try {
@@ -89,14 +89,8 @@ function DashGcomponent() {
             </div>
             <h1>12</h1>
           </div>
-          <div className={`${styles.card} bg-[#2e7d32]`}>
-            <div className={styles.cardInner}>
-              <h3>ALERTS</h3>
-              <BsFillBellFill className={styles.cardIcon} />
-            </div>
-            <h1>42</h1>
-          </div>
         </div>
+
         {/* Composant EtablissementsComponent (avec modal) */}
         <EtablissementsComponent
           show={showEtablissements}

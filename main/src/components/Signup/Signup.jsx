@@ -38,7 +38,7 @@ const Signup = () => {
       });
 
       alert("Inscription réussie !");
-      navigate("/login");
+      navigate("/LoginPage");
     } catch (error) {
       alert("Erreur lors de l'inscription : " + (error.response?.data || error.message));
     }
@@ -48,6 +48,9 @@ const Signup = () => {
     <div className="signup-container">
       <div className="signup-header">
         <img src={logo} alt="logo" />
+        <h2 className="welcome-text">
+          Créer un compte <span className="brand-name">HadrPredict</span>
+        </h2>
       </div>
 
       <form className="inputs" onSubmit={handleSubmit}>
@@ -101,7 +104,7 @@ const Signup = () => {
             required
           />
         </div>
-        <button type="submit">S'inscrire</button>
+        <button type="submit" className="SingupSubmit">S'inscrire</button>
       </form>
 
       <div className="login-redirect">

@@ -32,102 +32,8 @@ public class ExcelEleveService {
         this.ecoleService = ecoleService;
     }
 
-    public void importer(MultipartFile file) throws Exception {
-        List<Eleve> eleves = new ArrayList<>();
-
-        try (InputStream is = file.getInputStream(); Workbook workbook = new XSSFWorkbook(is)) {
-            Sheet sheet = workbook.getSheetAt(0);
-            int firstDataRowIndex = sheet.getFirstRowNum() + 1;
-
-            for (int i = firstDataRowIndex; i <= sheet.getLastRowNum(); i++) {
-                Row row = sheet.getRow(i);
-                if (row == null) continue;
-
-                Long idEleve = getLongValue(row.getCell(0));
-                if (idEleve == null) {
-                    System.out.println("❌ Ligne " + (i + 1) + " ignorée : idEleve manquant");
-                    continue;
-                }
-
-                if (eleveRepository.findByIdEleve(idEleve).isPresent()) {
-                    System.out.println("⚠️ Ligne " + (i + 1) + " ignorée : doublon idEleve " + idEleve);
-                    continue;
-                }
-
-                OffsetDateTime odt = getOffsetDateTimeValue(row.getCell(1));
-                if (odt == null) {
-                    System.out.println("❌ Ligne " + (i + 1) + " ignorée : dateDeNaissance invalide");
-                    continue;
-                }
-
-                String situation = getStringCellValue(row.getCell(2));
-                String genre = getStringCellValue(row.getCell(3));
-                if (genre == null || genre.isBlank()) {
-                    System.out.println("❌ Ligne " + (i + 1) + " ignorée : genre manquant");
-                    continue;
-                }
-
-                String classe = getStringCellValue(row.getCell(4));
-                String cycle = getStringCellValue(row.getCell(5));
-                Double resultat = getDoubleValue(row.getCell(6));
-                Integer absence = getIntegerValue(row.getCell(7));
-
-                String nomEcole = getStringCellValue(row.getCell(8));
-                String commune = getStringCellValue(row.getCell(9));
-                String province = getStringCellValue(row.getCell(10));
-                String typeSchool = getStringCellValue(row.getCell(11));
-                String milieu = getStringCellValue(row.getCell(12));
-
-                if (nomEcole == null || commune == null) {
-                    System.out.println("❌ Ligne " + (i + 1) + " ignorée : informations école incomplètes");
-                    continue;
-                }
-
-                if (milieu == null || milieu.isBlank()) {
-                    System.out.println("❌ Ligne " + (i + 1) + " ignorée : milieu manquant");
-                    continue;
-                }
-
-                Optional<Ecole> existingEcole = ecoleRepository.findByNomAndCommune(nomEcole, commune);
-                Ecole ecole = existingEcole.orElseGet(() -> {
-                    Ecole newEcole = new Ecole();
-                    newEcole.setNom(nomEcole);
-                    newEcole.setCommune(commune);
-                    newEcole.setProvince(province);
-                    newEcole.setTypeSchool(typeSchool);
-                    newEcole.setMilieu(milieu);
-                    return ecoleService.saveSchool(newEcole);
-                });
-
-                Eleve eleve = new Eleve();
-                eleve.setIdEleve(idEleve);
-                eleve.setDateDeNaissance(odt.toLocalDate());
-                eleve.setSituation(situation);
-                eleve.setGenre(genre);
-                eleve.setClasse(classe);
-                eleve.setCycle(cycle);
-                eleve.setAbsence(absence);
-                eleve.setResultat(resultat);
-                eleve.setEcole(ecole);
-
-                setPredictionFromMLModel(eleve);
-                eleves.add(eleve);
-                System.out.println("✅ Élève prêt à insérer : " + idEleve);
-            }
-        }
-
-        eleveRepository.saveAll(eleves);
-        System.out.println("✅ Total élèves enregistrés dans la base : " + eleves.size());
-
-        updatePredictionsForExistingStudents();
-    }
-
-    public void updatePredictionsForExistingStudents() {
-        List<Eleve> eleves = eleveRepository.findAll();
-        for (Eleve eleve : eleves) {
-            setPredictionFromMLModel(eleve);
-        }
-        eleveRepository.saveAll(eleves);
+    private int calculateAge(LocalDate dateDeNaissance) {
+        return Period.between(dateDeNaissance, LocalDate.now()).getYears();
     }
 
     private void setPredictionFromMLModel(Eleve eleve) {
@@ -144,8 +50,6 @@ public class ExcelEleveService {
             payload.put("Type_etablissement", eleve.getEcole().getTypeSchool());
             payload.put("age", calculateAge(eleve.getDateDeNaissance()));
 
-            payload.put("Situation", eleve.getSituation() != null ? eleve.getSituation() : "");
-
             String requestBody = mapper.writeValueAsString(payload);
 
             HttpRequest request = HttpRequest.newBuilder()
@@ -160,16 +64,118 @@ public class ExcelEleveService {
                 eleve.setPrediction(json.get("prediction").asInt());
                 eleve.setProbabilityAbandon(json.get("probability_abandon").asDouble());
             } else {
-                System.err.println("Erreur ML API : " + response.statusCode() + " " + response.body());
+                System.err.println("Erreur de prédiction : statut " + response.statusCode());
             }
 
         } catch (Exception e) {
-            System.err.println("Erreur appel modèle ML : " + e.getMessage());
+            System.err.println("Erreur lors de l'appel au modèle ML : " + e.getMessage());
         }
     }
 
-    private int calculateAge(LocalDate dateDeNaissance) {
-        return Period.between(dateDeNaissance, LocalDate.now()).getYears();
+    public void importer(MultipartFile file) throws Exception {
+        List<Eleve> eleves = new ArrayList<>();
+
+        try (InputStream is = file.getInputStream(); Workbook workbook = new XSSFWorkbook(is)) {
+            Sheet sheet = workbook.getSheetAt(0);
+            int firstDataRowIndex = sheet.getFirstRowNum() + 1; // Skip header row
+
+            for (int i = firstDataRowIndex; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null) continue;
+
+                Long idEleve = getLongValue(row.getCell(0));
+                if (idEleve == null) {
+                    System.out.println("Ligne " + (i + 1) + " ignorée : idEleve manquant");
+                    continue;
+                }
+
+                OffsetDateTime odt = getOffsetDateTimeValue(row.getCell(1));
+                if (odt == null) {
+                    System.out.println("Ligne " + (i + 1) + " ignorée : dateDeNaissance invalide");
+                    continue;
+                }
+
+                String genre = getStringCellValue(row.getCell(2));
+                if (genre == null || genre.isBlank()) {
+                    System.out.println("Ligne " + (i + 1) + " ignorée : genre manquant");
+                    continue;
+                }
+
+                String classe = getStringCellValue(row.getCell(3));
+                String cycle = getStringCellValue(row.getCell(4));
+                Integer absence = getIntegerValue(row.getCell(5));
+                Double resultat = getDoubleValue(row.getCell(6));
+                String situation = getStringCellValue(row.getCell(12)); // Optionnelle
+
+                String nomEcole = getStringCellValue(row.getCell(7));
+                String commune = getStringCellValue(row.getCell(8));
+                if (nomEcole == null || commune == null) {
+                    System.out.println("Ligne " + (i + 1) + " ignorée : informations école incomplètes");
+                    continue;
+                }
+
+                Optional<Ecole> existingEcole = ecoleRepository.findByNomAndCommune(nomEcole, commune);
+                Ecole ecole = existingEcole.orElseGet(() -> {
+                    Ecole newEcole = new Ecole();
+                    newEcole.setNom(nomEcole);
+                    newEcole.setCommune(commune);
+                    newEcole.setProvince(getStringCellValue(row.getCell(9)));
+                    newEcole.setTypeSchool(getStringCellValue(row.getCell(10)));
+                    newEcole.setMilieu(getStringCellValue(row.getCell(11)));
+                    return ecoleService.saveSchool(newEcole);
+                });
+
+                Optional<Eleve> existingEleveOpt = eleveRepository.findByIdEleve(idEleve);
+                Eleve eleve;
+                boolean needsPrediction = false;
+
+                if (existingEleveOpt.isPresent()) {
+                    eleve = existingEleveOpt.get();
+
+                    if (!Objects.equals(eleve.getDateDeNaissance(), odt.toLocalDate()) ||
+                            !Objects.equals(eleve.getGenre(), genre) ||
+                            !Objects.equals(eleve.getClasse(), classe) ||
+                            !Objects.equals(eleve.getCycle(), cycle) ||
+                            !Objects.equals(eleve.getAbsence(), absence) ||
+                            !Objects.equals(eleve.getResultat(), resultat) ||
+                            !Objects.equals(eleve.getSituation(), situation) ||
+                            !Objects.equals(eleve.getEcole(), ecole)) {
+
+                        eleve.setDateDeNaissance(odt.toLocalDate());
+                        eleve.setGenre(genre);
+                        eleve.setClasse(classe);
+                        eleve.setCycle(cycle);
+                        eleve.setAbsence(absence);
+                        eleve.setResultat(resultat);
+                        eleve.setSituation(situation);
+                        eleve.setEcole(ecole);
+                        needsPrediction = true;
+                    }
+
+                } else {
+                    eleve = new Eleve();
+                    eleve.setIdEleve(idEleve);
+                    eleve.setDateDeNaissance(odt.toLocalDate());
+                    eleve.setGenre(genre);
+                    eleve.setClasse(classe);
+                    eleve.setCycle(cycle);
+                    eleve.setAbsence(absence);
+                    eleve.setResultat(resultat);
+                    eleve.setSituation(situation);
+                    eleve.setEcole(ecole);
+                    needsPrediction = true;
+                }
+
+                if (needsPrediction) {
+                    setPredictionFromMLModel(eleve);
+                }
+
+                eleves.add(eleve);
+            }
+        }
+
+        eleveRepository.saveAll(eleves);
+        System.out.println(eleves.size() + " élèves traités (créés ou mis à jour) avec succès.");
     }
 
     private String getStringCellValue(Cell cell) {

@@ -83,7 +83,7 @@ const Login = () => {
           </label>
           <Link to="/forgot-password">Mot de passe oublié ?</Link>
         </div>
-        <button type="submit">Login</button>
+        <button type="submit" className="loginButton">Login</button>
       </form>
 
       <div className="register-redirect">

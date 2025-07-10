@@ -1,19 +1,17 @@
-import React from "react";
-
-// Fonction pour récupérer les stats depuis l'API
 export const fetchStats = async () => {
   try {
     const response = await fetch(
       "http://localhost:8081/api/eleve/par-prediction"
     );
     const stats = await response.json();
-    console.log("Données brutes:", stats);
 
-    const formattedData = Object.entries(stats).map(([label, value]) => ({
-      label,
-      value: parseFloat(value).toFixed(2),
+    // Conversion en format compatible avec MUI PieChart
+    const formattedData = Object.entries(stats).map(([key, value]) => ({
+      id: key,
+      value: parseFloat(value),
     }));
 
+    console.log("Données formatées:", formattedData);
     return formattedData;
   } catch (error) {
     console.error("Erreur lors du chargement des stats :", error);

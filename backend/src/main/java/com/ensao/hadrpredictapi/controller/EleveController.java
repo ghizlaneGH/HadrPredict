@@ -26,7 +26,8 @@ public class EleveController {
     private final EleveRepository eleveRepository;
 
 
-   // uploader un fichier Excel
+
+    // uploader un fichier Excel
     @PostMapping("/upload")
     public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file) {
         try {
@@ -59,25 +60,76 @@ public class EleveController {
     }
 
     //Statistiques groupees par prediction
+
     @GetMapping("/par-prediction")
     public ResponseEntity<Map<String,Double>> getParPrediction() {
         Map<String,Double> map = eleveService.getPredictionStats();
         return ResponseEntity.ok(map);
     }
+
     @GetMapping("/pred-par-genre")
-    public Map<String,Double> getPredictionParGenre(){
-        double totalFilles = eleveRepository.countTFille();
-        double totalGarcon = eleveRepository.countTGarcon();
+    public Map<String, Double> getPredictionParGenre() {
+        List<Eleve> eleves = eleveRepository.findAll();
 
-        double fillePred =eleveRepository.countFillePrediction();
-        double garconPred =eleveRepository.countGarconPrediction();
+        // Filtrer les abandons (prediction == 1)
+        List<Eleve> abandons = eleves.stream()
+                .filter(e -> e.getPrediction() == 1)
+                .toList();
 
-        Map<String,Double> map=new HashMap<>();
-        map.put("Fille",totalFilles>0 ?(fillePred/totalFilles)*100 :0);
-        map.put("Garçon",totalGarcon>0 ? (garconPred/totalGarcon)*100 :0);
+        long totalAbandons = abandons.size();
 
-    return map;
+        if (totalAbandons == 0) {
+            return Map.of(
+                    "Filles", 0.0,
+                    "Garçons", 0.0
+            );
+        }
+
+        // Compter filles et garçons parmi les abandons
+        long fillesAbandons = abandons.stream()
+                .filter(e -> e.getGenre().equalsIgnoreCase("Fille"))
+                .count();
+
+        long garconsAbandons = totalAbandons - fillesAbandons;
+
+        // Calculer les pourcentages
+        double pctFilles = Math.round(((double) fillesAbandons / totalAbandons) * 1000) / 10.0;
+        double pctGarcons = Math.round(((double) garconsAbandons / totalAbandons) * 1000) / 10.0;
+
+        return Map.of(
+                "Filles", pctFilles,
+                "Garçons", pctGarcons
+        );
+    }
+
+    @GetMapping("/alertes/ecole/{schoolId}")
+    public List<Map<String, Object>> getElevesEnAlerteParEcole(@PathVariable Long schoolId) {
+        List<Eleve> eleves = eleveRepository.findByEcoleId(schoolId)
+                .stream()
+                .filter(e -> e.getPrediction() == 1)
+                .toList();
+
+        return eleves.stream().map(eleve -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", eleve.getId());
+            map.put("resultat", eleve.getResultat());
+            map.put("absence", eleve.getAbsence());
+            return map;
+        }).toList();
+    }
+
+    @GetMapping("/alertes/global")
+    public List<Map<String, Object>> getAllElevesEnAlerte() {
+        List<Eleve> eleves = eleveRepository.findAll().stream()
+                .filter(e -> e.getPrediction() == 1)
+                .toList();
+
+        return eleves.stream().map(eleve -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", eleve.getId());
+            map.put("resultat", eleve.getResultat());
+            map.put("absence", eleve.getAbsence());
+            return map;
+        }).toList();
     }
 }
-
-

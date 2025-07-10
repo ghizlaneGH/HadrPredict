@@ -10,7 +10,7 @@ import {
   Legend,
 } from "recharts";
 
-const AbandonBarChart = () => {
+const BarChartLabel = () => {
   const [chartData, setChartData] = useState([
     { name: "Filles", abandon: 0 },
     { name: "Garçons", abandon: 0 },
@@ -35,11 +35,11 @@ const AbandonBarChart = () => {
         const updatedData = [
           {
             name: "Filles",
-            abandon: data.Fille || 0,
+            abandon: data.Filles || 0,
           },
           {
             name: "Garçons",
-            abandon: data.Garçon || 0,
+            abandon: data.Garçons || 0,
           },
         ];
 
@@ -80,4 +80,4 @@ const AbandonBarChart = () => {
   );
 };
 
-export default AbandonBarChart;
+export default BarChartLabel;

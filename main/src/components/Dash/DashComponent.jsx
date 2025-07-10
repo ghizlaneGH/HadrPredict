@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 
 import BarChartId from "../Chart/BarChartId";
 import PieArcLabelID from "../Chart/PieArcLabelID";
+import AlertCard from "./AlertCard";
 
 const DashComponent = () => {
   const { schoolId } = useParams();
@@ -63,7 +64,7 @@ const DashComponent = () => {
             <div className={styles.cardInner}>
               <h3>ALERTS</h3>
             </div>
-            <h1>{schoolId ? "5" : "42"}</h1>
+            <AlertCard schoolId={schoolId} />{" "}
           </div>
         </div>
         {/* Graphiques en ligne */}

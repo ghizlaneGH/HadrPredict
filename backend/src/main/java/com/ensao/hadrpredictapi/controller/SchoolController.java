@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,52 +41,53 @@ public class SchoolController {
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> getSchoolById(@PathVariable Long id) {
         Ecole ecole = ecoleRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Ecole non trouvee"));
-        String cycle="Inconnu";
-        if(ecole.getEleves() != null && !ecole.getEleves().isEmpty()) {
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ecole non trouvée"));
+
+        String cycle = "Inconnu";
+        if (ecole.getEleves() != null && !ecole.getEleves().isEmpty()) {
             cycle = ecole.getEleves().get(0).getCycle();
         }
-        List<Eleve> eleves =ecole.getEleves();
 
-        long total =eleves.size();
+        List<Eleve> eleves = ecole.getEleves();
+        long total = eleves.size();
 
-        long pred1 =eleves.stream().filter(e -> e.getPrediction()==1).count();
-        long pred0=total - pred1;
+        // --- Statistiques globales ---
+        long pred1 = eleves.stream().filter(e -> e.getPrediction() == 1).count();
+        long pred0 = total - pred1;
 
-        long garcons = eleves.stream().filter(e->e.getGenre().equalsIgnoreCase("Garçon")).count();
-        long filles = total-garcons;
+        // --- Calcul du barData : Filles/Garçons parmi les abandons ---
+        List<Eleve> abandons = eleves.stream()
+                .filter(e -> e.getPrediction() == 1)
+                .toList();
 
-        long garconsPred1 = eleves.stream()
-                .filter(e->e.getGenre().equalsIgnoreCase("Garçon") && e.getPrediction()==1)
+        long fillesAbandon = abandons.stream()
+                .filter(e -> e.getGenre().equalsIgnoreCase("Fille"))
                 .count();
-        long fillesPred1 = eleves.stream()
-                .filter(e->e.getGenre().equalsIgnoreCase("Fille") && e.getPrediction()==1)
-                .count();
 
-        double pourcentageGarcon = garcons == 0 ? 0 : (double) garconsPred1/garcons *100;
-        double pourcentageFille = filles == 0 ? 0 : (double) fillesPred1/filles *100;
+        long garconsAbandon = pred1 - fillesAbandon;
 
-        Map<String, Object> map= new HashMap<>();
+        double pctFilles = pred1 == 0 ? 0 : Math.round(((double) fillesAbandon / pred1) * 1000) / 10.0;
+        double pctGarcons = pred1 == 0 ? 0 : Math.round(((double) garconsAbandon / pred1) * 1000) / 10.0;
 
-
+        // --- Construction de la réponse ---
+        Map<String, Object> map = new HashMap<>();
         map.put("SchoolName", ecole.getNom());
         map.put("cycle", cycle);
         map.put("totalEleves", total);
 
         // Données pour PieChart
         List<Map<String, Object>> pieData = List.of(
-                Map.of("name", "Exerce ces études", "value", pred1),
-                Map.of("name", "Abandons", "value", pred0)
+                Map.of("name", "Exerce ces études", "value", pred0),
+                Map.of("name", "Abandons", "value", pred1)
         );
         map.put("pieData", pieData);
 
-        // Données pour BarChart
+        // Données pour BarChart (modifiées)
         List<Map<String, Object>> barData = List.of(
-                Map.of("genre", "Garçons", "pourcent", Math.round(pourcentageGarcon * 10) / 10.0),
-                Map.of("genre", "Filles", "pourcent", Math.round(pourcentageFille * 10) / 10.0)
+                Map.of("genre", "Filles", "pourcent", pctFilles),
+                Map.of("genre", "Garçons", "pourcent", pctGarcons)
         );
         map.put("barData", barData);
-
 
         return ResponseEntity.ok(map);
     }
@@ -117,10 +119,11 @@ public class SchoolController {
     public Long getCount(){
         return ecoleRepository.count();
     }
+
     @GetMapping("/map")
     public ResponseEntity<List<Ecole>> getAllWithCoordinates() {
         List<Ecole> dtos = schoolService.getSchoolsWithCoordinates();
         return ResponseEntity.ok(dtos);
     }
-
 }
+
