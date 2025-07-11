@@ -114,6 +114,7 @@ public class EleveController {
             map.put("id", eleve.getId());
             map.put("resultat", eleve.getResultat());
             map.put("absence", eleve.getAbsence());
+            map.put("situation", eleve.getSituation());
             return map;
         }).toList();
     }
@@ -129,6 +130,7 @@ public class EleveController {
             map.put("id", eleve.getId());
             map.put("resultat", eleve.getResultat());
             map.put("absence", eleve.getAbsence());
+            map.put("situation", eleve.getSituation());
             return map;
         }).toList();
     }
