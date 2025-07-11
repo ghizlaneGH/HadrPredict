@@ -38,6 +38,7 @@ export default function AlertsElevesPage() {
             <th>ID Élève</th>
             <th>Résultat</th>
             <th>Absences</th>
+            <th>Situation</th>
           </tr>
         </thead>
         <tbody>
@@ -59,6 +60,9 @@ export default function AlertsElevesPage() {
               </td>
               <td style={{ padding: "10px", border: "1px solid #ccc" }}>
                 {student.absence}
+              </td>
+              <td style={{ padding: "10px", border: "1px solid #ccc" }}>
+                {student.situation}
               </td>
             </tr>
           ))}

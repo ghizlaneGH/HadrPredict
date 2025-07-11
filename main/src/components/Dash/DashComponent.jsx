@@ -62,7 +62,7 @@ const DashComponent = () => {
           </div>
           <div className={styles.card} style={{ backgroundColor: "#2e7d32" }}>
             <div className={styles.cardInner}>
-              <h3>ALERTS</h3>
+              <h3>ALERTES</h3>
             </div>
             <AlertCard schoolId={schoolId} />{" "}
           </div>
